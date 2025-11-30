@@ -1,0 +1,68 @@
+version: '3'
+
+services:
+  broker-service:
+    build:
+      context: ./broker-service
+      dockerfile: broker-service.dockerfile
+    image: micro-go-guide/broker-service:latest
+    restart: always
+    ports:
+      - "8080:80"
+    deploy:
+      mode: replicated
+      replicas: 1
+
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: auth-service.dockerfile
+    image: micro-go-guide/auth-service:latest
+    restart: always
+    ports:
+      - "8081:80"
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      DSN: "host=auth-db port=${AUTH_DB_PORT} user=${AUTH_DB_USER} password=${AUTH_DB_PASSWORD} dbname=${AUTH_DB_NAME} sslmode=disable"
+
+  auth-db:
+    image: postgres:alpine
+    ports:
+      - "${AUTH_DB_HOST_PORT}:${AUTH_DB_PORT}"
+    restart: always
+    environment:
+      POSTGRES_USER: ${AUTH_DB_USER}
+      POSTGRES_PASSWORD: ${AUTH_DB_PASSWORD}
+      POSTGRES_DB: ${AUTH_DB_NAME}
+    volumes:
+      - ./db-data/postgres/:/var/lib/postgresql/data/
+
+  logger-service:
+    build:
+      context: ./logger-service
+      dockerfile: logger-service.dockerfile
+    image: micro-go-guide/logger-service:latest
+    restart: always
+    ports:
+      - "8082:80"
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      DB_USER: admin
+      DB_PASS: 20020509
+      DB_URL: ${LOG_DB_URL}
+
+  log-db:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: logs
+      MONGO_INITDB_ROOT_USERNAME: ${LOG_DB_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${LOG_DB_PASSWORD}
+    restart: always
+    volumes:
+      - ./db-data/mongo/:/data/db/

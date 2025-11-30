@@ -1,0 +1,38 @@
+# Build / output
+dist/
+build/
+out/
+coverage/
+coverage.out
+.cache/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# macOS
+.DS_Store
+
+# IDEs / editors
+.vscode/
+.idea/
+*.iml
+
+# Go
+/bin/
+/pkg/
+vendor/
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+
+# Go modules & tools
+GOMODCACHE/
+
+# Local volumes folders for Docker
+/volumes/
+/redis-data/
+/db-data/
